@@ -26,10 +26,10 @@ class Function:
 
         return output
 
-    def forward(self, x: NDArray) -> NDArray:
+    def forward(self, x: NDArray) -> NDArray[np.float64]:
         raise NotImplementedError()
 
-    def backward(self, d_out: NDArray) -> NDArray:
+    def backward(self, d_out: NDArray) -> NDArray[np.float64]:
         raise NotImplementedError()
 
 
@@ -42,6 +42,19 @@ class Square(Function):
     def backward(self, d_out: NDArray) -> NDArray:
         x: NDArray[np.float64] = self.input.data
         return d_out * x * 2
+
+
+class Exp(Function):
+    @override
+    def forward(self, x: NDArray[np.float64]) -> NDArray[np.float64]:
+        return np.exp(x)
+
+    @override
+    def backward(self, d_out: NDArray[np.float64]) -> NDArray[np.float64]:
+        x: NDArray[np.float64] = self.input.data
+        # only here =>
+        y: NDArray[np.float64] = d_out * np.exp(x)
+        return y
 
 
 t = np.array([1, 23])
