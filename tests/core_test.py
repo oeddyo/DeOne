@@ -10,3 +10,6 @@ class TestCore(unittest.TestCase):
         v = Variable(np.array([1, 2, 3]))
         s = Square()
         np.testing.assert_array_equal([1, 4, 9], s(v).data)
+
+
+print("ok")
