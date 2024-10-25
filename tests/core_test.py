@@ -11,5 +11,7 @@ class TestCore(unittest.TestCase):
         s = Square()
         np.testing.assert_array_equal([1, 4, 9], s(v).data)
 
+        # set input correctly
+        np.testing.assert_equal(v.data, s.input.data)
 
-print("ok")
+        np.testing.assert_equal([1, 4, 9], s.output.data)

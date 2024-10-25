@@ -1,3 +1,6 @@
+from __future__ import annotations  # Add this to allow circular type ref
+
+
 import numpy as np
 from numpy.typing import NDArray
 from typing_extensions import override
@@ -6,12 +9,23 @@ from typing_extensions import override
 class Variable:
     def __init__(self, data: NDArray) -> None:
         self.data = data
+        self.grad = None
+        self.creator = None
+
+    def set_creator(self, creator: Function) -> None:
+        pass
 
 
 class Function:
     def __call__(self, input: Variable) -> Variable:
+        self.input = input
         r = self.forward(input.data)
-        return Variable(r)
+        output = Variable(r)
+
+        self.output = output
+        output.set_creator(self)
+
+        return output
 
     def forward(self, x: NDArray) -> NDArray:
         raise NotImplementedError()
