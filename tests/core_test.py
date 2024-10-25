@@ -35,3 +35,28 @@ class TestCore(unittest.TestCase):
         res.backward()
 
         assert_almost_equal(v.grad, np.array([3.29744254]))
+
+    def test_gradient_check(self) -> None:
+        f1 = Square()
+        f2 = Square()
+        f3 = Exp()
+        f4 = Square()
+
+        def complex_f(x):  # type: ignore
+            return f4(f3(f2(f1(x))))
+
+        def numeric_diff(f, x: Variable):  # type: ignore
+            h = 1e-6
+            r1 = f(Variable(x.data + h))
+            r2 = f(Variable(x.data - h))
+
+            print(r1.data, r2.data)
+            g = (r1.data - r2.data) / (2 * h)
+
+            return g
+
+        x = Variable(np.array([0.12, 0.1, 1.02]))
+        y = complex_f(x)
+        y.backward()
+
+        assert_almost_equal(x.grad, numeric_diff(complex_f, x), 5)
