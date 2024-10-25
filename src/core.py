@@ -1,8 +1,9 @@
 from __future__ import annotations  # Add this to allow circular type ref
 
+from typing import override
+
 import numpy as np
 from numpy.typing import NDArray
-from typing_extensions import override
 
 from src.util import as_array
 
