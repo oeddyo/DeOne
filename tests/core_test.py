@@ -2,7 +2,8 @@ import numpy as np
 import pytest
 from numpy.ma.testutils import assert_almost_equal, assert_equal
 
-from src.core import Exp, Square, Variable
+from src.core import Variable
+from src.functions import Exp, Square
 
 
 # Former VariableTest class tests

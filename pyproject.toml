@@ -18,24 +18,24 @@ warn_return_any = true
 
 [tool.ruff]
 lint.select = [
-    "E",   # pycodestyle errors (basic Python style)
-    "F",   # pyflakes (logical errors)
-    "I",   # isort (import sorting)
-    "N",   # pep8-naming (naming conventions)
+    "E", # pycodestyle errors (basic Python style)
+    "F", # pyflakes (logical errors)
+    "I", # isort (import sorting)
+    "N", # pep8-naming (naming conventions)
     "RUF", # ruff-specific rules
-    "B",   # bugbear (catches common bugs)
-    "UP",  # pyupgrade (modernize Python code)
+    "B", # bugbear (catches common bugs)
+    "UP", # pyupgrade (modernize Python code)
     "NPY", # numpy-specific rules
-    "PT",  # pytest rules
+    "PT", # pytest rules
     "C90", # complexity checking
 ]
 
 # Common issues to ignore for ML/research code
 lint.ignore = [
-    "E741",    # Ambiguous variable names (l, I, O) - common in ML
-    "N803",    # Argument name should be lowercase (conflicts with common ML conventions like X, Y)
-    "N806",    # Variable in function should be lowercase (conflicts with common ML variables like X_train)
-    "B008",    # Do not perform function calls in argument defaults (common pattern with torch.Tensor)
+    "E741", # Ambiguous variable names (l, I, O) - common in ML
+    "N803", # Argument name should be lowercase (conflicts with common ML conventions like X, Y)
+    "N806", # Variable in function should be lowercase (conflicts with common ML variables like X_train)
+    "B008", # Do not perform function calls in argument defaults (common pattern with torch.Tensor)
 ]
 
 line-length = 88  # Black's default
