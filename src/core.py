@@ -1,6 +1,5 @@
 from __future__ import annotations  # Add this to allow circular type ref
 
-
 import numpy as np
 from numpy.typing import NDArray
 from typing_extensions import override
@@ -30,11 +29,19 @@ class Function:
     def forward(self, x: NDArray) -> NDArray:
         raise NotImplementedError()
 
+    def backward(self, d_out: NDArray) -> NDArray:
+        raise NotImplementedError()
+
 
 class Square(Function):
     @override
     def forward(self, x: NDArray) -> NDArray:
         return x**2
+
+    @override
+    def backward(self, d_out: NDArray) -> NDArray:
+        x: NDArray[np.float64] = self.input.data
+        return d_out * x * 2
 
 
 t = np.array([1, 23])
