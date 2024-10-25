@@ -1,8 +1,9 @@
 import unittest
 
 import numpy as np
+from numpy.ma.testutils import assert_almost_equal
 
-from src.core import Variable, Square
+from src.core import Variable, Square, Exp
 
 
 class TestCore(unittest.TestCase):
@@ -22,3 +23,15 @@ class TestCore(unittest.TestCase):
 
         s(v)
         print(s.backward(np.array([1])))
+
+    def test_chained_backprop(self) -> None:
+        s1 = Square()
+        exp = Exp()
+        s2 = Square()
+
+        v = Variable(np.array([0.5]))
+        res: Variable = s2(exp(s1(v)))
+
+        res.backward()
+
+        assert_almost_equal(v.grad, np.array([3.29744254]))

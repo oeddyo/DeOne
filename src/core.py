@@ -1,18 +1,44 @@
 from __future__ import annotations  # Add this to allow circular type ref
 
+from typing import List
+
 import numpy as np
 from numpy.typing import NDArray
-from typing_extensions import override
+from typing_extensions import override, Optional
 
 
 class Variable:
     def __init__(self, data: NDArray) -> None:
         self.data = data
-        self.grad = None
-        self.creator = None
+        self.grad: Optional[NDArray] = None
+        self.creator: Optional[Function] = None
 
     def set_creator(self, creator: Function) -> None:
-        pass
+        self.creator = creator
+
+    def backward(self) -> None:
+        """Do back propagation from this variable"""
+
+        if self.creator is None:
+            raise TypeError("bad bad")
+
+        if self.grad is None:
+            self.grad = np.ones_like(self.data)
+
+        funcs: List[Function] = [self.creator]
+
+        while funcs:
+            creator = funcs.pop()
+            x, y = creator.input, creator.output
+
+            if y.grad is None:
+                raise ValueError("grad cannot be None during backprop")
+
+            prev_g = creator.backward(y.grad)
+            x.grad = prev_g
+
+            if x.creator is not None:
+                funcs.append(x.creator)
 
 
 class Function:
