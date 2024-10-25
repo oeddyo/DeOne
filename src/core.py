@@ -1,17 +1,23 @@
 from __future__ import annotations  # Add this to allow circular type ref
 
-from typing import List
-
 import numpy as np
 from numpy.typing import NDArray
-from typing_extensions import override, Optional
+from typing_extensions import override
+
+from src.util import as_array
 
 
 class Variable:
     def __init__(self, data: NDArray) -> None:
-        self.data = data
-        self.grad: Optional[NDArray] = None
-        self.creator: Optional[Function] = None
+        # variable only allows None or NDArray as data
+        if not isinstance(data, np.ndarray):
+            raise TypeError(
+                "Type {} is not supported. Variable supports only np.NDArray"
+            )
+
+        self.data: NDArray = data
+        self.grad: NDArray | None = None
+        self.creator: Function | None = None
 
     def set_creator(self, creator: Function) -> None:
         self.creator = creator
@@ -25,7 +31,7 @@ class Variable:
         if self.grad is None:
             self.grad = np.ones_like(self.data)
 
-        funcs: List[Function] = [self.creator]
+        funcs: list[Function] = [self.creator]
 
         while funcs:
             creator = funcs.pop()
@@ -45,8 +51,10 @@ class Function:
     def __call__(self, input: Variable) -> Variable:
         self.input = input
         r = self.forward(input.data)
-        output = Variable(r)
 
+        # force output as array because numpy on 0 dimension will output scalar
+        r = as_array(r)
+        output = Variable(r)
         self.output = output
         output.set_creator(self)
 
