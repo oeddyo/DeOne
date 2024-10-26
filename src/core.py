@@ -59,8 +59,8 @@ class Function:
 
         return output
 
-    def forward(self, x: NDArray) -> NDArray[np.float64]:
+    def forward(self, x: NDArray) -> NDArray:
         raise NotImplementedError()
 
-    def backward(self, d_out: NDArray) -> NDArray[np.float64]:
+    def backward(self, d_out: NDArray) -> NDArray:
         raise NotImplementedError()
