@@ -25,17 +25,17 @@ def test_output_ndarray() -> None:
     x = Variable(np.array(1.0))
     f = Square()
     r = f(x)
-    assert isinstance(r.data, np.ndarray)
+    assert isinstance(r.data, np.ndarray)  # type: ignore
 
 
 def test_square() -> None:
     v = Variable(np.array([1, 2, 3]))
     s = Square()
-    np.testing.assert_array_equal([1, 4, 9], s(v).data)
+    np.testing.assert_array_equal([1, 4, 9], s(v).data)  # type: ignore
 
     # set input correctly
-    np.testing.assert_equal(v.data, s.input.data)
-    np.testing.assert_equal([1, 4, 9], s.output.data)
+    np.testing.assert_equal(v.data, s.inputs[0].data)
+    np.testing.assert_equal([1, 4, 9], s.outputs[0].data)
 
 
 def test_chained_backprop() -> None:
@@ -44,7 +44,7 @@ def test_chained_backprop() -> None:
     s2 = Square()
 
     v = Variable(np.array([0.5]))
-    res: Variable = s2(exp(s1(v)))
+    res: Variable = s2(exp(s1(v)))  # type: ignore
 
     res.backward()
     assert_almost_equal(v.grad, np.array([3.29744254]))

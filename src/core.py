@@ -1,5 +1,7 @@
 from __future__ import annotations  # Add this to allow circular type ref
 
+from typing import override
+
 import numpy as np
 from numpy.typing import NDArray
 
@@ -34,33 +36,64 @@ class Variable:
 
         while funcs:
             creator = funcs.pop()
-            x, y = creator.input, creator.output
+            gys: list[NDArray] = [y.grad for y in creator.outputs]  # type: ignore
+            prev_gs = creator.backward(*gys)
 
-            if y.grad is None:
-                raise ValueError("grad cannot be None during backprop")
+            if not isinstance(prev_gs, tuple):
+                prev_gs = (prev_gs,)
 
-            prev_g = creator.backward(y.grad)
-            x.grad = prev_g
+            for x, gx in zip(creator.inputs, prev_gs, strict=True):
+                x.grad = gx
 
-            if x.creator is not None:
-                funcs.append(x.creator)
+                if x.creator is not None:
+                    funcs.append(x.creator)
 
 
 class Function:
-    def __call__(self, input: Variable) -> Variable:
-        self.input = input
-        r = self.forward(input.data)
+    def __call__(self, *inputs: Variable) -> Variable | tuple[Variable, ...]:
+        xs = [x.data for x in inputs]
+        ys = self.forward(*xs)
 
-        # force output as array because numpy on 0 dimension will output scalar
-        r = as_array(r)
-        output = Variable(r)
-        self.output = output
-        output.set_creator(self)
+        if not isinstance(ys, tuple):
+            ys = (ys,)
 
-        return output
+        outputs = []
+        for y in ys:
+            # force output as array because numpy on 0 dimension will output scalar
+            output = Variable(as_array(y))
+            output.set_creator(self)
+            outputs.append(output)
 
-    def forward(self, x: NDArray) -> NDArray:
+        self.inputs = inputs
+        self.outputs = outputs
+
+        return tuple(outputs) if len(outputs) > 1 else outputs[0]
+
+    def forward(self, *x: NDArray) -> tuple[NDArray, ...]:
         raise NotImplementedError()
 
-    def backward(self, d_out: NDArray) -> NDArray:
+    def backward(self, *d_out: NDArray) -> tuple[NDArray, ...]:
         raise NotImplementedError()
+
+
+# Operations are simple and clean
+class Add(Function):
+    @override
+    def forward(self, a: NDArray, b: NDArray) -> NDArray:  # type: ignore
+        r: NDArray = a + b
+        return r
+
+    def backward(self, grad: NDArray) -> tuple[NDArray, NDArray]:  # type: ignore
+        return grad, grad
+
+
+"""
+f = Add()
+v1 = Variable(np.array([12]))
+v2 = Variable(np.array([1]))
+r = f(v1, v2)
+
+r.backward()
+
+print(v1.grad)
+"""
